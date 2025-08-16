@@ -1,0 +1,22 @@
+# Optimized requirements for AWS Lambda deployment
+# Heavy dependencies like torch and whisper are excluded to stay under size limits
+
+Flask==2.3.3
+Werkzeug==2.3.7
+requests==2.31.0
+ffmpeg-python==0.2.0
+boto3==1.34.0
+Pillow==10.1.0
+psutil==5.9.6
+
+# Removed heavy packages that exceed Lambda limits:
+# - torch (>500MB)  
+# - openai-whisper (depends on torch)
+# - numpy (large, included with other packages)
+# - matplotlib (large)
+# - google-cloud-storage (can use boto3 for S3 instead)
+
+# Optional: Include only if needed
+# APScheduler==3.10.4
+# srt==3.5.3
+# yt-dlp==2023.11.16

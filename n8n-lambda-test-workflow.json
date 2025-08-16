@@ -1,0 +1,174 @@
+{
+  "name": "No-Code Toolkit Lambda Test Workflow",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "manual-trigger-1",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "url": "<YOUR_LAMBDA_URL>",
+        "method": "POST",
+        "authentication": "none",
+        "jsonParameters": true,
+        "options": {
+          "timeout": 30000
+        },
+        "bodyParametersJson": "{\n  \"test\": \"hello\",\n  \"environment\": \"production\",\n  \"timestamp\": \"{{$now.toISO()}}\",\n  \"workflow_test\": true\n}",
+        "headerParametersJson": "{\n  \"Content-Type\": \"application/json\",\n  \"User-Agent\": \"n8n-workflow-test\"\n}"
+      },
+      "id": "lambda-request-1",
+      "name": "Lambda Health Check",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [500, 200]
+    },
+    {
+      "parameters": {
+        "url": "<YOUR_LAMBDA_URL>/v1/toolkit/test",
+        "method": "POST",
+        "authentication": "none",
+        "jsonParameters": true,
+        "options": {
+          "timeout": 30000
+        },
+        "bodyParametersJson": "{\n  \"test\": \"toolkit_endpoint\",\n  \"action\": \"validate\",\n  \"timestamp\": \"{{$now.toISO()}}\"\n}",
+        "headerParametersJson": "{\n  \"Content-Type\": \"application/json\",\n  \"User-Agent\": \"n8n-workflow-test\"\n}"
+      },
+      "id": "toolkit-test-1",
+      "name": "Toolkit Endpoint Test",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [500, 400]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition-1",
+              "leftValue": "={{$json.statusCode}}",
+              "rightValue": 200,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "response-check-1",
+      "name": "Check Response Status",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [750, 300]
+    },
+    {
+      "parameters": {
+        "message": "✅ Lambda function is responding correctly!\n\nResponse Details:\n- Status Code: {{$json.statusCode}}\n- Function URL: <YOUR_LAMBDA_URL>\n- Response Body: {{JSON.stringify($json.body, null, 2)}}\n- Timestamp: {{$now.toISO()}}",
+        "options": {}
+      },
+      "id": "success-notification-1",
+      "name": "Success Notification",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1000, 200]
+    },
+    {
+      "parameters": {
+        "message": "❌ Lambda function test failed!\n\nError Details:\n- Status Code: {{$json.statusCode || 'Unknown'}}\n- Function URL: <YOUR_LAMBDA_URL>\n- Error: {{$json.error || 'No error details'}}\n- Timestamp: {{$now.toISO()}}",
+        "options": {}
+      },
+      "id": "error-notification-1",
+      "name": "Error Notification",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1000, 400]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Lambda Health Check",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Toolkit Endpoint Test",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lambda Health Check": {
+      "main": [
+        [
+          {
+            "node": "Check Response Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Toolkit Endpoint Test": {
+      "main": [
+        [
+          {
+            "node": "Check Response Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Response Status": {
+      "main": [
+        [
+          {
+            "node": "Success Notification",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Error Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "updatedAt": "2025-01-01T00:00:00.000Z",
+      "id": "lambda-test",
+      "name": "lambda-test"
+    }
+  ],
+  "triggerCount": 0,
+  "updatedAt": "2025-01-01T00:00:00.000Z",
+  "versionId": "1"
+}

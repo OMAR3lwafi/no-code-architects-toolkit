@@ -1,13 +1,16 @@
+# ⚠️ WARNING: This requirements.txt is for local development
+# For Lambda deployment, use requirements-lambda.txt (optimized for size limits)
+
 Flask
 Werkzeug
 requests
 ffmpeg-python
-openai-whisper
+openai-whisper  # ⚠️ Large dependency - excluded from Lambda
 gunicorn
 APScheduler
 srt
 numpy
-torch
+torch  # ⚠️ Very large dependency - excluded from Lambda
 google-auth
 google-auth-oauthlib
 google-auth-httplib2
@@ -16,5 +19,5 @@ google-cloud-storage
 psutil
 boto3
 Pillow
-matplotlib
+matplotlib  # ⚠️ Large dependency - excluded from Lambda
 yt-dlp

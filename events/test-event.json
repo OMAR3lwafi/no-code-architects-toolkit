@@ -1,0 +1,27 @@
+{
+  "httpMethod": "GET",
+  "path": "/",
+  "queryStringParameters": null,
+  "headers": {
+    "Accept": "application/json",
+    "Content-Type": "application/json",
+    "Host": "example.com",
+    "User-Agent": "Mozilla/5.0"
+  },
+  "body": null,
+  "isBase64Encoded": false,
+  "requestContext": {
+    "accountId": "123456789012",
+    "apiId": "api-id",
+    "stage": "prod",
+    "requestId": "request-id",
+    "identity": {
+      "sourceIp": "127.0.0.1"
+    },
+    "http": {
+      "method": "GET",
+      "path": "/",
+      "sourceIp": "127.0.0.1"
+    }
+  }
+}

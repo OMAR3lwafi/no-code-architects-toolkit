@@ -1,0 +1,61 @@
+# SAM configuration file for No-Code Architects Toolkit
+
+version = 0.1
+
+[default]
+[default.global]
+[default.global.parameters]
+stack_name = "no-code-toolkit-prod"
+
+[default.build]
+[default.build.parameters]
+cached = true
+parallel = true
+
+[default.validate]
+[default.validate.parameters]
+lint = true
+
+[default.deploy]
+[default.deploy.parameters]
+capabilities = "CAPABILITY_IAM"
+confirm_changeset = true
+resolve_s3 = true
+s3_prefix = "no-code-toolkit"
+region = "us-east-1"
+image_repositories = []
+parameter_overrides = [
+    "Environment=prod"
+]
+
+[dev]
+[dev.global]
+[dev.global.parameters]
+stack_name = "no-code-toolkit-dev"
+
+[dev.deploy]
+[dev.deploy.parameters]
+capabilities = "CAPABILITY_IAM"
+confirm_changeset = false
+resolve_s3 = true
+s3_prefix = "no-code-toolkit-dev"
+region = "us-east-1"
+parameter_overrides = [
+    "Environment=dev"
+]
+
+[staging]
+[staging.global]
+[staging.global.parameters]
+stack_name = "no-code-toolkit-staging"
+
+[staging.deploy]
+[staging.deploy.parameters]
+capabilities = "CAPABILITY_IAM"
+confirm_changeset = true
+resolve_s3 = true
+s3_prefix = "no-code-toolkit-staging"
+region = "us-east-1"
+parameter_overrides = [
+    "Environment=staging"
+]

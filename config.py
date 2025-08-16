@@ -20,9 +20,7 @@ import os
 import logging
 
 # Retrieve the API key from environment variables
-API_KEY = os.environ.get('API_KEY')
-if not API_KEY:
-    raise ValueError("API_KEY environment variable is not set")
+API_KEY = os.environ.get('API_KEY', 'default-api-key')  # Make API_KEY optional for Lambda
 
 # Storage path setting
 LOCAL_STORAGE_PATH = os.environ.get('LOCAL_STORAGE_PATH', '/tmp')
@@ -30,6 +28,10 @@ LOCAL_STORAGE_PATH = os.environ.get('LOCAL_STORAGE_PATH', '/tmp')
 # GCP environment variables
 GCP_SA_CREDENTIALS = os.environ.get('GCP_SA_CREDENTIALS', '')
 GCP_BUCKET_NAME = os.environ.get('GCP_BUCKET_NAME', '')
+
+# AWS S3 environment variables for Lambda
+AWS_S3_BUCKET = os.environ.get('STORAGE_BUCKET', '')
+AWS_DEFAULT_REGION = os.environ.get('AWS_DEFAULT_REGION', 'us-east-1')
 
 def validate_env_vars(provider):
 

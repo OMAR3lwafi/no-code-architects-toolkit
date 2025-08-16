@@ -1,0 +1,2 @@
+# FFmpeg layer will be built using static binaries
+# This file is a placeholder for the layer structure

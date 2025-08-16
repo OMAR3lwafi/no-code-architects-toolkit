@@ -1,0 +1,180 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: No-Code Architects Toolkit - Lambda Application for Media Processing
+
+Parameters:
+  Environment:
+    Type: String
+    Default: prod
+    AllowedValues:
+      - dev
+      - staging
+      - prod
+    Description: Environment name
+
+  BucketName:
+    Type: String
+    Default: !Sub "no-code-toolkit-${Environment}-${AWS::AccountId}"
+    Description: S3 bucket name for file storage
+
+Globals:
+  Function:
+    Timeout: 900  # 15 minutes for media processing
+    MemorySize: 3008  # Maximum for Lambda
+    Runtime: python3.9
+    Environment:
+      Variables:
+        ENVIRONMENT: !Ref Environment
+        STORAGE_BUCKET: !Ref MediaStorageBucket
+        LOCAL_STORAGE_PATH: /tmp
+        AWS_DEFAULT_REGION: !Ref AWS::Region
+
+Resources:
+  # S3 Bucket for media storage
+  MediaStorageBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref BucketName
+      VersioningConfiguration:
+        Status: Enabled
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - "*"
+            AllowedMethods:
+              - GET
+              - PUT
+              - POST
+              - DELETE
+              - HEAD
+            AllowedOrigins:
+              - "*"
+            MaxAge: 3000
+
+  # Main Lambda Function
+  NoCodeToolkitFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "no-code-toolkit-${Environment}"
+      CodeUri: .
+      Handler: lambda_handler.lambda_handler
+      Description: No-Code Architects Toolkit for media processing
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Layers:
+        - !Ref FFmpegLayer
+      Environment:
+        Variables:
+          STORAGE_BUCKET: !Ref MediaStorageBucket
+          MAX_QUEUE_LENGTH: 10
+          PATH: "/opt/bin:/usr/local/bin:/usr/bin/:/bin:/opt/bin"
+      FunctionUrlConfig:
+        AuthType: NONE
+        Cors:
+          AllowCredentials: false
+          AllowHeaders:
+            - "content-type"
+            - "x-amz-date"
+            - "authorization"
+            - "x-api-key"
+          AllowMethods:
+            - "*"
+          AllowOrigins:
+            - "*"
+          MaxAge: 86400
+
+  # FFmpeg Layer for media processing
+  FFmpegLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: !Sub "ffmpeg-layer-${Environment}"
+      Description: FFmpeg binaries for media processing
+      ContentUri: layers/ffmpeg/
+      CompatibleRuntimes:
+        - python3.9
+      RetentionPolicy: Retain
+
+  # Dead Letter Queue for failed processing
+  DeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub "no-code-toolkit-dlq-${Environment}"
+      MessageRetentionPeriod: 1209600  # 14 days
+
+  # CloudWatch Log Group
+  FunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/no-code-toolkit-${Environment}"
+      RetentionInDays: 14
+
+  # IAM Role for Lambda execution
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "NoCodeToolkitLambdaRole-${Environment}"
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: S3Access
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:DeleteObject
+                Resource:
+                  - !Sub "${MediaStorageBucket}/*"
+              - Effect: Allow
+                Action:
+                  - s3:ListBucket
+                Resource:
+                  - !GetAtt MediaStorageBucket.Arn
+        - PolicyName: CloudWatchLogs
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*"
+
+Outputs:
+  FunctionUrl:
+    Description: "Lambda Function URL for direct access"
+    Value: !GetAtt NoCodeToolkitFunction.FunctionUrl
+    Export:
+      Name: !Sub "${AWS::StackName}-FunctionUrl"
+
+  FunctionArn:
+    Description: "Lambda Function ARN"
+    Value: !GetAtt NoCodeToolkitFunction.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-FunctionArn"
+
+  S3BucketName:
+    Description: "S3 Bucket for media storage"
+    Value: !Ref MediaStorageBucket
+    Export:
+      Name: !Sub "${AWS::StackName}-S3Bucket"
+
+  ApplicationName:
+    Description: "Application name for AWS Console"
+    Value: !Sub "no-code-toolkit-${Environment}"
+    Export:
+      Name: !Sub "${AWS::StackName}-ApplicationName"

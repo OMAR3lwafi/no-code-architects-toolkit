@@ -1,4 +1,37 @@
-.env_variables.json
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+
+# Node
+node_modules/
+
+# SAM build artifacts
+.aws-sam/
+
+# Logs & dumps
+*.log
+*.tmp
 .DS_Store
-.env_shell.json
+
+# Env & secrets
 .env
+.env.*
+.env_variables.json
+.env_shell.json
+*.pem
+*.key
+*.cer
+
+# Large/temporary
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.mp4
+*.mov
+# keep layer binaries out of Git unless you truly need them
+layers/ffmpeg/bin/ffmpeg
