@@ -1,0 +1,1104 @@
+{
+	"info": {
+		"_postman_id": "2bf1b0b2-eb80-4155-ad8e-6ccef7d0c77c",
+		"name": "NCA Toolkit API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "39368717",
+		"_collection_link": "https://www.postman.com/sgp-labs/nca-toolkit-api/collection/fv9pnfm/nca-toolkit-api?action=share&source=collection_link&creator=39368717"
+	},
+	"item": [
+		{
+			"name": "v1",
+			"item": [
+				{
+					"name": "video",
+					"item": [
+						{
+							"name": "caption",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-API-Key",
+										"value": "{{x-api-key}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"video_url\": \"https://storage.googleapis.com/sgplabs-general-storage/Vertical%20Video.mp4\",\r\n    \"replace\": [\r\n        {\r\n            \"find\": \"you\",\r\n            \"replace\": \"#$%#$#%$#%\"\r\n        }\r\n    ],\r\n    \"settings\": {\r\n        \"line_color\": \"#FFFFFF\",\r\n        \"word_color\": \"#FFFF00\",\r\n        \"all_caps\": false,\r\n        \"max_words_per_line\": 3,\r\n        \"font_size\": 60,\r\n        \"bold\": false,\r\n        \"italic\": false,\r\n        \"underline\": false,\r\n        \"strikeout\": false,\r\n        \"outline_width\": 3,\r\n        \"shadow_offset\": 4,\r\n        \"style\": \"highlight\",\r\n        \"font_family\": \"The Bold Font\",\r\n        \"position\": \"bottom_center\"\r\n    },\r\n    \"id\": \"gdrive-five\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/v1/video/caption",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"v1",
+										"video",
+										"caption"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "concatenate",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-API-Key",
+										"value": "{{x-api-key}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"video_urls\":[\r\n        {\"video_url\":\"https://storage.googleapis.com/sgplabs-general-storage/Vertical%20Video.mp4\"},\r\n        {\"video_url\":\"https://storage.googleapis.com/sgplabs-general-storage/Vertical%20Video.mp4\"}\r\n    ],\r\n    \"id\": \"2323\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/v1/video/concatenate",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"v1",
+										"video",
+										"concatenate"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "ffmpeg",
+					"item": [
+						{
+							"name": "compose Concat",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-api-key",
+										"value": "{{x-api-key}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"inputs\": [\r\n        {\r\n            \"file_url\": \"https://storage.googleapis.com/sgplabs-general-storage/Vertical%20Video.mp4\"\r\n        },\r\n        {\r\n            \"file_url\": \"https://storage.googleapis.com/sgplabs-general-storage/Vertical%20Video.mp4\"\r\n        }\r\n    ],\r\n    \"filters\": [\r\n        {\r\n            \"filter\": \"[0:v][0:a][1:v][1:a]concat=n=2:v=1:a=1[outv][outa]\"\r\n        }\r\n    ],\r\n    \"outputs\": [\r\n        {\r\n            \"options\": [\r\n                {\r\n                    \"option\": \"-map\",\r\n                    \"argument\": \"[outv]\"\r\n                },\r\n                {\r\n                    \"option\": \"-map\",\r\n                    \"argument\": \"[outa]\"\r\n                },\r\n                {\r\n                    \"option\": \"-c:v\",\r\n                    \"argument\": \"libx264\"\r\n                },\r\n                {\r\n                    \"option\": \"-crf\",\r\n                    \"argument\": \"23\"\r\n                },\r\n                {\r\n                    \"option\": \"-preset\",\r\n                    \"argument\": \"medium\"\r\n                },\r\n                {\r\n                    \"option\": \"-c:a\",\r\n                    \"argument\": \"aac\"\r\n                },\r\n                {\r\n                    \"option\": \"-b:a\",\r\n                    \"argument\": \"128k\"\r\n                }\r\n            ]\r\n        }\r\n    ],\r\n    \"metadata\": {\r\n        \"thumbnail\": true,\r\n        \"filesize\": true,\r\n        \"duration\": true,\r\n        \"bitrate\": true,\r\n        \"encoder\": true\r\n    },\r\n    \"id\": \"2323\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/v1/ffmpeg/compose",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"v1",
+										"ffmpeg",
+										"compose"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "compose Clip",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-api-key",
+										"value": "{{x-api-key}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"inputs\": [\r\n    {\r\n      \"file_url\": \"https://storage.googleapis.com/sgplabs-general-storage/Horizontal Video.mp4\"\r\n    }\r\n  ],\r\n  \"filters\": [\r\n    {\r\n      \"filter\": \"[0:v]trim=start=10:end=15,setpts=PTS-STARTPTS[vout];[0:a]atrim=start=10:end=15,asetpts=PTS-STARTPTS[aout]\"\r\n    }\r\n  ],\r\n  \"outputs\": [\r\n    {\r\n      \"options\": [\r\n        { \"option\": \"-map\", \"argument\": \"[vout]\" },\r\n        { \"option\": \"-map\", \"argument\": \"[aout]\" },\r\n        { \"option\": \"-c:v\", \"argument\": \"libx264\" },\r\n        { \"option\": \"-c:a\", \"argument\": \"aac\" }\r\n      ]\r\n    }\r\n  ],\r\n  \"metadata\": {\r\n    \"thumbnail\": true,\r\n    \"filesize\": true,\r\n    \"duration\": true,\r\n    \"bitrate\": true,\r\n    \"encoder\": true\r\n  },\r\n  \"id\": \"extract_clip_001\"\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/v1/ffmpeg/compose",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"v1",
+										"ffmpeg",
+										"compose"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "compose Crop",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-api-key",
+										"value": "{{x-api-key}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"inputs\": [\r\n    {\r\n      \"file_url\": \"https://storage.googleapis.com/sgplabs-general-storage/Horizontal Video.mp4\"\r\n    }\r\n  ],\r\n  \"filters\": [\r\n    {\r\n      \"filter\": \"[0:v]crop=658:1080:656:0,scale=1080:1920[v]\"\r\n    }\r\n  ],\r\n  \"outputs\": [\r\n    {\r\n      \"options\": [\r\n        {\r\n          \"option\": \"-map\",\r\n          \"argument\": \"[v]\"\r\n        },\r\n        {\r\n          \"option\": \"-map\",\r\n          \"argument\": \"0:a\"\r\n        },\r\n        {\r\n          \"option\": \"-c:a\",\r\n          \"argument\": \"copy\"\r\n        }\r\n      ]\r\n    }\r\n  ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/v1/ffmpeg/compose",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"v1",
+										"ffmpeg",
+										"compose"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "compose Thumbnail",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-api-key",
+										"value": "{{x-api-key}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"inputs\": [\r\n        {\r\n            \"file_url\": \"https://storage.googleapis.com/sgplabs-general-storage/Vertical%20Video.mp4\"\r\n        }\r\n    ],\r\n    \"filters\": [\r\n        {\r\n            \"filter\": \"select='gte(t,1)',showinfo\"\r\n        }\r\n    ],\r\n    \"outputs\": [\r\n        {\r\n            \"options\": [\r\n                {\r\n                    \"option\": \"-frames:v\",\r\n                    \"argument\": \"1\"\r\n                },\r\n                {\r\n                    \"option\": \"-f\",\r\n                    \"argument\": \"image2\"\r\n                }\r\n            ]\r\n        }\r\n    ],\r\n    \"id\": \"select-specific-second\"\r\n}\r\n\r\n\r\n\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/v1/ffmpeg/compose",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"v1",
+										"ffmpeg",
+										"compose"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "compose Logo",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-api-key",
+										"value": "{{x-api-key}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"inputs\": [\r\n    {\r\n      \"file_url\": \"https://storage.googleapis.com/sgplabs-general-storage/Horizontal Video.mp4\"\r\n    },\r\n    {\r\n      \"file_url\": \"https://storage.googleapis.com/sgplabs-general-storage/NCA%20Logo.png\"\r\n    }\r\n  ],\r\n  \"filters\": [\r\n    {\r\n      \"filter\": \"[1:v]scale=150:150[logo];[0:v][logo]overlay=x=50:y=main_h-overlay_h-50\"\r\n    }\r\n  ],\r\n  \"outputs\": [\r\n    {\r\n      \"options\": [\r\n        { \"option\": \"-f\", \"argument\": \"mp4\" },\r\n        { \"option\": \"-c:v\", \"argument\": \"libx264\" }\r\n      ]\r\n    }\r\n  ],\r\n  \"metadata\": {\r\n    \"thumbnail\": true,\r\n    \"filesize\": true,\r\n    \"duration\": true,\r\n    \"bitrate\": true\r\n  },\r\n  \"id\": \"overlay_logo\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/v1/ffmpeg/compose",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"v1",
+										"ffmpeg",
+										"compose"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "compose Tweet Pic",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-api-key",
+										"value": "{{x-api-key}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"inputs\": [\r\n        {\r\n            \"file_url\": \"https://storage.googleapis.com/sgplabs-general-storage/vertical%20pic%20skool.png\"\r\n        },\r\n        {\r\n            \"file_url\": \"https://storage.googleapis.com/sgplabs-general-storage/tweet%20pic.png\"\r\n        }\r\n    ],\r\n    \"filters\": [\r\n        {\r\n            \"filter\": \"[0:v][1:v]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2+200[outv]\"\r\n        }\r\n    ],\r\n    \"outputs\": [\r\n        {\r\n            \"options\": [\r\n                {\r\n                    \"option\": \"-map\",\r\n                    \"argument\": \"[outv]\"\r\n                },\r\n                {\r\n                    \"option\": \"-f\",\r\n                    \"argument\": \"image2\"\r\n                }\r\n            ]\r\n        }\r\n    ],\r\n    \"id\": \"image-overlay\"\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/v1/ffmpeg/compose",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"v1",
+										"ffmpeg",
+										"compose"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "compose Tweet Vid",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-api-key",
+										"value": "{{x-api-key}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"inputs\": [\r\n        {\r\n            \"file_url\": \"https://storage.googleapis.com/sgplabs-general-storage/Vertical%20Video.mp4\"\r\n        },\r\n        {\r\n            \"file_url\": \"https://storage.googleapis.com/sgplabs-general-storage/tweet%20pic.png\"\r\n        }\r\n    ],\r\n    \"filters\": [\r\n        {\r\n            \"filter\": \"[0:v][1:v]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2+200[outv]\"\r\n        }\r\n    ],\r\n    \"outputs\": [\r\n        {\r\n            \"options\": [\r\n                {\r\n                    \"option\": \"-map\",\r\n                    \"argument\": \"[outv]\"\r\n                },\r\n                {\r\n                    \"option\": \"-map\",\r\n                    \"argument\": \"0:a\"\r\n                },\r\n                {\r\n                    \"option\": \"-c:v\",\r\n                    \"argument\": \"libx264\"\r\n                },\r\n                {\r\n                    \"option\": \"-c:a\",\r\n                    \"argument\": \"aac\"\r\n                },\r\n                {\r\n                    \"option\": \"-f\",\r\n                    \"argument\": \"mp4\"\r\n                }\r\n            ]\r\n        }\r\n    ],\r\n    \"id\": \"video-overlay\",\r\n    \"metadata\": {\r\n        \"bitrate\": false,\r\n        \"encoder\": false,\r\n        \"duration\": false,\r\n        \"filesize\": false,\r\n        \"thumbnail\": false\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/v1/ffmpeg/compose",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"v1",
+										"ffmpeg",
+										"compose"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "compose Reaction",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-api-key",
+										"value": "{{x-api-key}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"inputs\": [\r\n    {\r\n      \"file_url\": \"https://storage.googleapis.com/sgplabs-general-storage/reaction.mp4\",\r\n      \"options\": []\r\n    },\r\n    {\r\n      \"file_url\": \"https://storage.googleapis.com/sgplabs-general-storage/skool%2Breaction.mp4\",\r\n      \"options\": []\r\n    }\r\n  ],\r\n  \"filters\": [\r\n    {\r\n      \"filter\": \"[1:v]scale=1080:1920[preScaledB];[preScaledB]scale=iw*0.45:ih*0.45[scaledB];[scaledB]drawbox=x=0:y=0:w=iw:h=ih:color=red@1:t=25[borderB];[0:v][borderB]overlay=x=500:y=950:enable='lte(t,39)'[videoOut]\"\r\n    },\r\n    {\r\n      \"filter\": \"[0:a][1:a]amix=inputs=2:duration=longest[audioOut]\"\r\n    }\r\n  ],\r\n  \"outputs\": [\r\n    {\r\n      \"options\": [\r\n        { \"option\": \"-map\", \"argument\": \"[videoOut]\" },\r\n        { \"option\": \"-map\", \"argument\": \"[audioOut]\" },\r\n        { \"option\": \"-c:v\", \"argument\": \"libx264\" },\r\n        { \"option\": \"-c:a\", \"argument\": \"aac\" },\r\n        { \"option\": \"-b:a\", \"argument\": \"192k\" }\r\n      ]\r\n    }\r\n  ],\r\n  \"id\": \"recWwxk2Xnc8lxJSu\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/v1/ffmpeg/compose",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"v1",
+										"ffmpeg",
+										"compose"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "compose Mixer",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-api-key",
+										"value": "{{x-api-key}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"inputs\": [\r\n        {\r\n            \"file_url\": \"https://storage.googleapis.com/sgplabs-general-storage/Horizontal%20Video.mp4\"\r\n        },\r\n        {\r\n            \"file_url\": \"https://storage.googleapis.com/sgplabs-general-storage/I'm%20Back.mp3\"\r\n        }\r\n    ],\r\n    \"filters\": [\r\n        {\r\n            \"filter\": \"[0:a]volume=1[audio1];[1:a]volume=0.60[audio2];[audio1][audio2]amix=inputs=2:duration=longest[outa]\"\r\n        }\r\n    ],\r\n    \"outputs\": [\r\n        {\r\n            \"options\": [\r\n                {\r\n                    \"option\": \"-map\",\r\n                    \"argument\": \"0:v\"\r\n                },\r\n                {\r\n                    \"option\": \"-map\",\r\n                    \"argument\": \"[outa]\"\r\n                },\r\n                {\r\n                    \"option\": \"-c:v\",\r\n                    \"argument\": \"copy\"\r\n                },\r\n                {\r\n                    \"option\": \"-c:a\",\r\n                    \"argument\": \"aac\"\r\n                }\r\n            ]\r\n        }\r\n    ],\r\n    \"id\": \"audio-layering\"\r\n}\r\n\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/v1/ffmpeg/compose",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"v1",
+										"ffmpeg",
+										"compose"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "ffmpeg (Drawtext)",
+					"item": [
+						{
+							"name": "compose Drawtext",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-api-key",
+										"value": "{{x-api-key}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"inputs\": [\r\n    {\r\n      \"file_url\": \"https://storage.googleapis.com/sgplabs-general-storage/vertical%20pic%20skool.png\"\r\n    }\r\n  ],\r\n  \"filters\": [\r\n    {\r\n      \"filter\": \"drawtext=text='Hello, World!':fontsize=70:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2\"\r\n    }\r\n  ],\r\n  \"outputs\": [\r\n    {\r\n      \"options\": [\r\n        {\r\n          \"option\": \"-frames:v\",\r\n          \"argument\": \"1\"\r\n        },\r\n        {\r\n          \"option\": \"-c:v\",\r\n          \"argument\": \"mjpeg\"\r\n        },\r\n        {\r\n          \"option\": \"-f\",\r\n          \"argument\": \"image2\"\r\n        }\r\n      ]\r\n    }\r\n  ],\r\n  \"id\": \"drawtext-no-font-example\"\r\n}\r\n\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/v1/ffmpeg/compose",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"v1",
+										"ffmpeg",
+										"compose"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "compose Certificate",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-api-key",
+										"value": "{{x-api-key}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"id\": \"image_text_overlay\",\r\n  \"inputs\": [\r\n    {\r\n      \"file_url\": \"https://storage.googleapis.com/sgplabs-general-storage/Certificate.png\"\r\n    }\r\n  ],\r\n  \"filters\": [\r\n    {\r\n      \"filter\": \"[0:v]drawtext=text='Ved':fontsize=55:fontcolor=black:x=(w-text_w)/2:y=820[v1]\"\r\n    },\r\n    {\r\n      \"filter\": \"[v1]drawtext=text='Make Automation Workshop\\\\: Level 1':fontsize=30:fontcolor=black:x=(w-text_w)/2:y=1000[v2]\"\r\n    },\r\n    {\r\n      \"filter\": \"[v2]drawtext=text='Stephen G. Pope':fontsize=25:fontcolor=black:x=410:y=h-310[v3]\"\r\n    },\r\n    {\r\n      \"filter\": \"[v3]drawtext=text='9/13/24':fontsize=25:fontcolor=black:x=w-560:y=h-310[outv]\"\r\n    }\r\n  ],\r\n  \"outputs\": [\r\n    {\r\n      \"options\": [\r\n        {\r\n          \"option\": \"-map\",\r\n          \"argument\": \"[outv]\"\r\n        },\r\n        {\r\n          \"option\": \"-frames:v\",\r\n          \"argument\": \"1\"\r\n        },\r\n        {\r\n          \"option\": \"-c:v\",\r\n          \"argument\": \"mjpeg\"\r\n        },\r\n        {\r\n          \"option\": \"-f\",\r\n          \"argument\": \"image2\"\r\n        }\r\n      ]\r\n    }\r\n  ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/v1/ffmpeg/compose",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"v1",
+										"ffmpeg",
+										"compose"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "compose Font",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-api-key",
+										"value": "{{x-api-key}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"inputs\": [\r\n    {\r\n      \"file_url\": \"https://storage.googleapis.com/sgplabs-general-storage/Vertical%20Video.mp4\"\r\n    }\r\n  ],\r\n  \"filters\": [\r\n    {\r\n      \"filter\": \"[0:v]drawtext=font='The Bold Font':text='Simple Text Example':fontsize=50:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2\"\r\n    }\r\n  ],\r\n  \"outputs\": [\r\n    {\r\n      \"options\": [\r\n        { \"option\": \"-c:v\", \"argument\": \"libx264\" },\r\n        { \"option\": \"-crf\", \"argument\": \"23\" },\r\n        { \"option\": \"-preset\", \"argument\": \"medium\" },\r\n        { \"option\": \"-f\", \"argument\": \"mp4\" }\r\n      ]\r\n    }\r\n  ],\r\n  \"id\": \"simple-text-example\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/v1/ffmpeg/compose",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"v1",
+										"ffmpeg",
+										"compose"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "compose Scrolling Text",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-api-key",
+										"value": "{{x-api-key}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"inputs\": [\r\n    {\r\n      \"file_url\": \"https://storage.googleapis.com/sgplabs-general-storage/Vertical%20Video.mp4\"\r\n    }\r\n  ],\r\n  \"filters\": [\r\n    {\r\n      \"filter\": \"[0:v]drawtext=font='The Bold Font':text='Scrolling Text Example':fontsize=50:fontcolor=white:x=w-mod(t*100\\\\,w+text_w):y=(h-text_h)/2\"\r\n    }\r\n  ],\r\n  \"outputs\": [\r\n    {\r\n      \"options\": [\r\n        { \"option\": \"-c:v\", \"argument\": \"libx264\" },\r\n        { \"option\": \"-crf\", \"argument\": \"23\" },\r\n        { \"option\": \"-preset\", \"argument\": \"medium\" },\r\n        { \"option\": \"-f\", \"argument\": \"mp4\" }\r\n      ]\r\n    }\r\n  ],\r\n  \"id\": \"scrolling-text-example\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/v1/ffmpeg/compose",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"v1",
+										"ffmpeg",
+										"compose"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "compose Bouncing Text",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-api-key",
+										"value": "{{x-api-key}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"inputs\": [\r\n    {\r\n      \"file_url\": \"https://storage.googleapis.com/sgplabs-general-storage/Vertical%20Video.mp4\"\r\n    }\r\n  ],\r\n  \"filters\": [\r\n    {\r\n      \"filter\": \"[0:v]drawtext=font='The Bold Font':text='Bouncing Text Example':fontsize=50:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2+20*sin(2*t)\"\r\n    }\r\n  ],\r\n  \"outputs\": [\r\n    {\r\n      \"options\": [\r\n        { \"option\": \"-c:v\", \"argument\": \"libx264\" },\r\n        { \"option\": \"-crf\", \"argument\": \"23\" },\r\n        { \"option\": \"-preset\", \"argument\": \"medium\" },\r\n        { \"option\": \"-f\", \"argument\": \"mp4\" }\r\n      ]\r\n    }\r\n  ],\r\n  \"id\": \"bouncing-text-example\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/v1/ffmpeg/compose",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"v1",
+										"ffmpeg",
+										"compose"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "compose Shadow Text",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-api-key",
+										"value": "{{x-api-key}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"inputs\": [\r\n    {\r\n      \"file_url\": \"https://storage.googleapis.com/sgplabs-general-storage/Vertical%20Video.mp4\"\r\n    }\r\n  ],\r\n  \"filters\": [\r\n    {\r\n      \"filter\": \"[0:v]drawtext=font='The Bold Font':text='Text with Shadow Example':fontsize=50:fontcolor=white:shadowcolor=black:shadowx=2:shadowy=2:x=(w-text_w)/2:y=(h-text_h)/2\"\r\n    }\r\n  ],\r\n  \"outputs\": [\r\n    {\r\n      \"options\": [\r\n        { \"option\": \"-c:v\", \"argument\": \"libx264\" },\r\n        { \"option\": \"-crf\", \"argument\": \"23\" },\r\n        { \"option\": \"-preset\", \"argument\": \"medium\" },\r\n        { \"option\": \"-f\", \"argument\": \"mp4\" }\r\n      ]\r\n    }\r\n  ],\r\n  \"id\": \"text-with-shadow-example\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/v1/ffmpeg/compose",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"v1",
+										"ffmpeg",
+										"compose"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "compose Outline Text",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-api-key",
+										"value": "{{x-api-key}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "// Demo 6 – Text with Outline Example\r\n{\r\n  \"inputs\": [\r\n    {\r\n      \"file_url\": \"https://storage.googleapis.com/sgplabs-general-storage/Vertical%20Video.mp4\"\r\n    }\r\n  ],\r\n  \"filters\": [\r\n    {\r\n      \"filter\": \"[0:v]drawtext=font='The Bold Font':text='Text with Outline Example':fontsize=50:fontcolor=white:borderw=2:bordercolor=black:x=(w-text_w)/2:y=(h-text_h)/2\"\r\n    }\r\n  ],\r\n  \"outputs\": [\r\n    {\r\n      \"options\": [\r\n        { \"option\": \"-c:v\", \"argument\": \"libx264\" },\r\n        { \"option\": \"-crf\", \"argument\": \"23\" },\r\n        { \"option\": \"-preset\", \"argument\": \"medium\" },\r\n        { \"option\": \"-f\", \"argument\": \"mp4\" }\r\n      ]\r\n    }\r\n  ],\r\n  \"id\": \"text-with-outline-example\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/v1/ffmpeg/compose",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"v1",
+										"ffmpeg",
+										"compose"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "compose Box Text",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-api-key",
+										"value": "{{x-api-key}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"inputs\": [\r\n    {\r\n      \"file_url\": \"https://storage.googleapis.com/sgplabs-general-storage/Vertical%20Video.mp4\"\r\n    }\r\n  ],\r\n  \"filters\": [\r\n    {\r\n      \"filter\": \"[0:v]drawtext=font='The Bold Font':text='Text with Box Background Example':fontsize=50:fontcolor=white:box=1:boxcolor=black@0.5:x=(w-text_w)/2:y=(h-text_h)/2\"\r\n    }\r\n  ],\r\n  \"outputs\": [\r\n    {\r\n      \"options\": [\r\n        { \"option\": \"-c:v\", \"argument\": \"libx264\" },\r\n        { \"option\": \"-crf\", \"argument\": \"23\" },\r\n        { \"option\": \"-preset\", \"argument\": \"medium\" },\r\n        { \"option\": \"-f\", \"argument\": \"mp4\" }\r\n      ]\r\n    }\r\n  ],\r\n  \"id\": \"text-with-box-background-example\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/v1/ffmpeg/compose",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"v1",
+										"ffmpeg",
+										"compose"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "compose Fade-In Text",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-api-key",
+										"value": "{{x-api-key}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "\r\n{\r\n  \"inputs\": [\r\n    {\r\n      \"file_url\": \"https://storage.googleapis.com/sgplabs-general-storage/Vertical%20Video.mp4\"\r\n    }\r\n  ],\r\n  \"filters\": [\r\n    {\r\n      \"filter\": \"[0:v]drawtext=font='The Bold Font':text='Animated Fade In Example':fontsize=50:fontcolor=white:alpha='if(lt(t,1),t,1)':x=(w-text_w)/2:y=(h-text_h)/2\"\r\n    }\r\n  ],\r\n  \"outputs\": [\r\n    {\r\n      \"options\": [\r\n        { \"option\": \"-c:v\", \"argument\": \"libx264\" },\r\n        { \"option\": \"-crf\", \"argument\": \"23\" },\r\n        { \"option\": \"-preset\", \"argument\": \"medium\" },\r\n        { \"option\": \"-f\", \"argument\": \"mp4\" }\r\n      ]\r\n    }\r\n  ],\r\n  \"id\": \"animated-text-fade-in-example\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/v1/ffmpeg/compose",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"v1",
+										"ffmpeg",
+										"compose"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "compose Transparency Text",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-api-key",
+										"value": "{{x-api-key}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"inputs\": [\r\n    {\r\n      \"file_url\": \"https://storage.googleapis.com/sgplabs-general-storage/Vertical%20Video.mp4\"\r\n    }\r\n  ],\r\n  \"filters\": [\r\n    {\r\n      \"filter\": \"[0:v]drawtext=font='The Bold Font':text='Text with Transparency Example':fontsize=50:fontcolor=white@0.5:x=(w-text_w)/2:y=(h-text_h)/2\"\r\n    }\r\n  ],\r\n  \"outputs\": [\r\n    {\r\n      \"options\": [\r\n        { \"option\": \"-c:v\", \"argument\": \"libx264\" },\r\n        { \"option\": \"-crf\", \"argument\": \"23\" },\r\n        { \"option\": \"-preset\", \"argument\": \"medium\" },\r\n        { \"option\": \"-f\", \"argument\": \"mp4\" }\r\n      ]\r\n    }\r\n  ],\r\n  \"id\": \"text-with-transparency-example\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/v1/ffmpeg/compose",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"v1",
+										"ffmpeg",
+										"compose"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "compose Timestamp Text",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-api-key",
+										"value": "{{x-api-key}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "\r\n{\r\n  \"inputs\": [\r\n    {\r\n      \"file_url\": \"https://storage.googleapis.com/sgplabs-general-storage/Vertical%20Video.mp4\"\r\n    }\r\n  ],\r\n  \"filters\": [\r\n    {\r\n      \"filter\": \"[0:v]drawtext=font='The Bold Font':text='%{pts\\\\:hms} Dynamic Timestamp Example':fontsize=50:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2\"\r\n    }\r\n  ],\r\n  \"outputs\": [\r\n    {\r\n      \"options\": [\r\n        { \"option\": \"-c:v\", \"argument\": \"libx264\" },\r\n        { \"option\": \"-crf\", \"argument\": \"23\" },\r\n        { \"option\": \"-preset\", \"argument\": \"medium\" },\r\n        { \"option\": \"-f\", \"argument\": \"mp4\" }\r\n      ]\r\n    }\r\n  ],\r\n  \"id\": \"dynamic-timestamp-example\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/v1/ffmpeg/compose",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"v1",
+										"ffmpeg",
+										"compose"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "compose Rotate Text",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-api-key",
+										"value": "{{x-api-key}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "\r\n{\r\n  \"inputs\": [\r\n    {\r\n      \"file_url\": \"https://storage.googleapis.com/sgplabs-general-storage/Vertical%20Video.mp4\"\r\n    }\r\n  ],\r\n  \"filters\": [\r\n    {\r\n      \"filter\": \"[0:v]drawtext=font='The Bold Font':text='Rotate Text Example':fontsize=50:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2:alpha=1[text]; [text]rotate=45*(PI/180):ow=rotw(45*(PI/180)):oh=roth(45*(PI/180))[rotated_text]; [0:v][rotated_text]overlay=(W-w)/2:(H-h)/2\"\r\n    }\r\n  ],\r\n  \"outputs\": [\r\n    {\r\n      \"options\": [\r\n        { \"option\": \"-c:v\", \"argument\": \"libx264\" },\r\n        { \"option\": \"-crf\", \"argument\": \"23\" },\r\n        { \"option\": \"-preset\", \"argument\": \"medium\" },\r\n        { \"option\": \"-f\", \"argument\": \"mp4\" }\r\n      ]\r\n    }\r\n  ],\r\n  \"id\": \"rotate-text-example\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/v1/ffmpeg/compose",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"v1",
+										"ffmpeg",
+										"compose"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "compose Mirror Text",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-api-key",
+										"value": "{{x-api-key}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"inputs\": [\r\n    {\r\n      \"file_url\": \"https://storage.googleapis.com/sgplabs-general-storage/Vertical%20Video.mp4\"\r\n    }\r\n  ],\r\n  \"filters\": [\r\n    {\r\n      \"filter\": \"[0:v]drawtext=font='The Bold Font':text='Mirror Text Example':fontsize=50:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2[text]; [text]hflip[mirrored_text]; [0:v][mirrored_text]overlay=(W-w)/2:(H-h)/2\"\r\n    }\r\n  ],\r\n  \"outputs\": [\r\n    {\r\n      \"options\": [\r\n        { \"option\": \"-c:v\", \"argument\": \"libx264\" },\r\n        { \"option\": \"-crf\", \"argument\": \"23\" },\r\n        { \"option\": \"-preset\", \"argument\": \"medium\" },\r\n        { \"option\": \"-f\", \"argument\": \"mp4\" }\r\n      ]\r\n    }\r\n  ],\r\n  \"id\": \"mirror-text-example\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/v1/ffmpeg/compose",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"v1",
+										"ffmpeg",
+										"compose"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "media",
+					"item": [
+						{
+							"name": "transform",
+							"item": [
+								{
+									"name": "mp3",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "x-api-key",
+												"value": "{{x-api-key}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"media_url\":\"https://storage.googleapis.com/sgplabs-general-storage/Vertical%20Video.mp4\",\r\n    \"bitrate\": \"256k\",\r\n    \"id\": \"five\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{base_url}}/v1/media/transform/mp3",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"v1",
+												"media",
+												"transform",
+												"mp3"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "transcribe",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-api-key",
+										"value": "{{x-api-key}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"media_url\":\"https://storage.googleapis.com/sgplabs-general-storage/Vertical%20Video.mp4\",\r\n    \"task\": \"transcribe\",\r\n    \"include_text\": true,\r\n    \"include_srt\": true,\r\n    \"include_segments\": true,\r\n    \"response_type\": \"cloud\",\r\n    \"word_timestamps\": true,\r\n    \"language\": \"en\",\r\n    \"id\": \"2323\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/v1/media/transcribe",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"v1",
+										"media",
+										"transcribe"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "toolkit",
+					"item": [
+						{
+							"name": "authenticate",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-api-key",
+										"value": "{{x-api-key}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/authenticate",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"authenticate"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "test",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-api-key",
+										"value": "{{x-api-key}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/v1/toolkit/test",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"v1",
+										"toolkit",
+										"test"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "image",
+					"item": [
+						{
+							"name": "transform",
+							"item": [
+								{
+									"name": "video",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "x-api-key",
+												"value": "{{x-api-key}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"image_url\":\"https://storage.googleapis.com/sgplabs-general-storage/Vertical%20Image.png\",\r\n    \"length\": 10,\r\n    \"frame_rate\": 25,\r\n    \"zoom_speed\": 3,\r\n    \"id\": \"local-extract\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{base_url}}/v1/image/transform/video",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"v1",
+												"image",
+												"transform",
+												"video"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "code",
+					"item": [
+						{
+							"name": "execute",
+							"item": [
+								{
+									"name": "python",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "x-api-key",
+												"value": "{{x-api-key}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"code\": \"# Initial array of titles\\ntitles = [\\n    {\\\"title\\\": \\\"how i learned to code in 24 hours straight\\\"},\\n    {\\\"title\\\": \\\"making the perfect pizza at 3am\\\"},\\n    {\\\"title\\\": \\\"i survived on $1 food for a week\\\"},\\n    {\\\"title\\\": \\\"trying weird food combinations you suggested\\\"},\\n    {\\\"title\\\": \\\"we bought everything in the store challenge\\\"},\\n    {\\\"title\\\": \\\"my morning routine 2024 updated\\\"},\\n    {\\\"title\\\": \\\"exploring abandoned mansion gone wrong\\\"},\\n    {\\\"title\\\": \\\"pranking my roommate they moved out\\\"},\\n    {\\\"title\\\": \\\"what i eat in a day as a chef\\\"},\\n    {\\\"title\\\": \\\"building a treehouse in one day\\\"},\\n    {\\\"title\\\": \\\"i lived in a tiny house for 30 days\\\"},\\n    {\\\"title\\\": \\\"transforming my backyard into a water park\\\"},\\n    {\\\"title\\\": \\\"cooking every recipe in grandma's cookbook\\\"},\\n    {\\\"title\\\": \\\"learning 10 languages in 10 months\\\"},\\n    {\\\"title\\\": \\\"ultimate gaming setup tour 2024\\\"},\\n    {\\\"title\\\": \\\"surviving in the wilderness for 48 hours\\\"},\\n    {\\\"title\\\": \\\"turning my car into a mobile office\\\"},\\n    {\\\"title\\\": \\\"i bought everything facebook advertised to me\\\"},\\n    {\\\"title\\\": \\\"secret menu items at famous restaurants\\\"},\\n    {\\\"title\\\": \\\"surprising my parents with their dream vacation\\\"},\\n    {\\\"title\\\": \\\"extreme room makeover on a budget\\\"},\\n    {\\\"title\\\": \\\"trying every item at mcdonalds in one day\\\"},\\n    {\\\"title\\\": \\\"building a robot that does my homework\\\"},\\n    {\\\"title\\\": \\\"living on a boat for a month\\\"},\\n    {\\\"title\\\": \\\"testing viral tiktok life hacks\\\"},\\n    {\\\"title\\\": \\\"transforming my garage into a movie theater\\\"},\\n    {\\\"title\\\": \\\"cooking with random ingredients challenge\\\"},\\n    {\\\"title\\\": \\\"visiting every state in 50 days\\\"},\\n    {\\\"title\\\": \\\"making a dress from recycled materials\\\"},\\n    {\\\"title\\\": \\\"i followed a victorian schedule for a week\\\"},\\n    {\\\"title\\\": \\\"turning my basement into an arcade\\\"},\\n    {\\\"title\\\": \\\"trying every coffee drink at starbucks\\\"},\\n    {\\\"title\\\": \\\"building a treehouse mansion for my dog\\\"},\\n    {\\\"title\\\": \\\"learning to skateboard in 24 hours\\\"},\\n    {\\\"title\\\": \\\"extreme grocery shopping challenge\\\"},\\n    {\\\"title\\\": \\\"converting my van into a tiny home\\\"},\\n    {\\\"title\\\": \\\"making a song using only kitchen sounds\\\"},\\n    {\\\"title\\\": \\\"reading 100 books in 100 days\\\"},\\n    {\\\"title\\\": \\\"training for a marathon in 30 days\\\"},\\n    {\\\"title\\\": \\\"living without technology for a week\\\"},\\n    {\\\"title\\\": \\\"cooking breakfast with my eyes closed\\\"},\\n    {\\\"title\\\": \\\"building a secret underground bunker\\\"},\\n    {\\\"title\\\": \\\"trying every ice cream flavor in my city\\\"},\\n    {\\\"title\\\": \\\"making clothes from dollar store items\\\"},\\n    {\\\"title\\\": \\\"transforming my attic into a gaming room\\\"},\\n    {\\\"title\\\": \\\"surviving on instant noodles for a month\\\"},\\n    {\\\"title\\\": \\\"building a miniature city in my backyard\\\"},\\n    {\\\"title\\\": \\\"learning to juggle chainsaws blindfolded\\\"},\\n    {\\\"title\\\": \\\"exploring abandoned theme park at night\\\"},\\n    {\\\"title\\\": \\\"making a gourmet meal in a microwave\\\"}\\n]\\n\\n# Update the titles in the array\\nfor i in range(len(titles)):\\n    titles[i][\\\"title\\\"] = \\\" \\\".join(word.capitalize() for word in titles[i][\\\"title\\\"].split())\\n\\nreturn titles\",\r\n    \"timeout\": 30\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{base_url}}/v1/code/execute/python",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"v1",
+												"code",
+												"execute",
+												"python"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "javascript (coming)",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "x-api-key",
+												"value": "{{x-api-key}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n   \"code\": \"def calculate_square(x):\\n    print('Hello World!')\\n    return x * x\\n\\nresult = calculate_square(5)\\nreturn result\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{base_url}}/v1/code/execute/javascript",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"v1",
+												"code",
+												"execute",
+												"javascript"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	]
+}
