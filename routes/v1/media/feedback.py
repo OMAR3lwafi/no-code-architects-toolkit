@@ -33,6 +33,19 @@ def create_root_next_routes(app):
     def root_logo():
         """Redirect logo requests to our namespaced route"""
         return redirect(f'{BASE_PATH}/logo.png')
+        
+    @app.route('/')
+    def root_home():
+        """Root endpoint - API status"""
+        return {
+            "service": "No-Code Architects Toolkit",
+            "status": "running",
+            "endpoints": {
+                "test": "/v1/toolkit/test",
+                "feedback": "/v1/media/feedback",
+                "docs": "Check /v1/toolkit/test for API status"
+            }
+        }
 
 @v1_media_feedback_bp.route('', methods=['GET'])
 def serve_feedback_page():
