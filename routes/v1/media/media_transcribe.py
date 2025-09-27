@@ -79,7 +79,7 @@ def transcribe(job_id, data):
                 "segments_url": None,
             }
 
-            return result_json, "/v1/transcribe/media", 200
+            return result_json, "/v1/media/transcribe", 200
 
         else:
 
@@ -101,8 +101,8 @@ def transcribe(job_id, data):
             if include_segments is True:
                 os.remove(result[2])
             
-            return cloud_urls, "/v1/transcribe/media", 200
+            return cloud_urls, "/v1/media/transcribe", 200
 
     except Exception as e:
         logger.error(f"Job {job_id}: Error during transcription process - {str(e)}")
-        return str(e), "/v1/transcribe/media", 500
+        return str(e), "/v1/media/transcribe", 500

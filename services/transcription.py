@@ -22,6 +22,7 @@ import srt
 from datetime import timedelta
 from whisper.utils import WriteSRT, WriteVTT
 from services.file_management import download_file
+from services.whisper_utils import get_whisper_model, normalize_language
 import logging
 import uuid
 
@@ -32,26 +33,29 @@ logging.basicConfig(level=logging.INFO)
 # Set the default local storage directory
 STORAGE_PATH = "/tmp/"
 
-def process_transcription(media_url, output_type, max_chars=56, language=None,):
+def process_transcription(media_url, output, max_chars=56, language="ar", model=None):
     """Transcribe media and return the transcript, SRT or ASS file path."""
-    logger.info(f"Starting transcription for media URL: {media_url} with output type: {output_type}")
+    logger.info(f"Starting transcription for media URL: {media_url} with output: {output}")
     input_filename = download_file(media_url, os.path.join(STORAGE_PATH, 'input_media'))
     logger.info(f"Downloaded media to local file: {input_filename}")
 
     try:
-        model = whisper.load_model("base")
-        logger.info("Loaded Whisper model")
+        code = normalize_language(language)
+        model = model or get_whisper_model(language=code, size="large")
+        logger.info(f"Loaded Whisper model (size=large), language set to '{code}'")
 
         # result = model.transcribe(input_filename)
         # logger.info("Transcription completed")
 
-        if output_type == 'transcript':
-            result = model.transcribe(input_filename, language=language)
-            output = result['text']
+        if output == 'transcript':
+            result = model.transcribe(input_filename, language=code)
+            logger.info(f"Detected language: {result.get('language', code)}")
+            result_value = result['text']
             logger.info("Generated transcript output")
-        elif output_type in ['srt', 'vtt']:
+        elif output in ['srt', 'vtt']:
 
-            result = model.transcribe(input_filename)
+            result = model.transcribe(input_filename, language=code)
+            logger.info(f"Detected language: {result.get('language', code)}")
             srt_subtitles = []
             for i, segment in enumerate(result['segments'], start=1):
                 start = timedelta(seconds=segment['start'])
@@ -62,20 +66,22 @@ def process_transcription(media_url, output_type, max_chars=56, language=None,):
             output_content = srt.compose(srt_subtitles)
             
             # Write the output to a file
-            output_filename = os.path.join(STORAGE_PATH, f"{uuid.uuid4()}.{output_type}")
+            output_filename = os.path.join(STORAGE_PATH, f"{uuid.uuid4()}.{output}")
             with open(output_filename, 'w') as f:
                 f.write(output_content)
             
-            output = output_filename
-            logger.info(f"Generated {output_type.upper()} output: {output}")
+            result_value = output_filename
+            logger.info(f"Generated {output.upper()} output: {result_value}")
 
-        elif output_type == 'ass':
+        elif output == 'ass':
             result = model.transcribe(
                 input_filename,
                 word_timestamps=True,
                 task='transcribe',
-                verbose=False
+                verbose=False,
+                language=code
             )
+            logger.info(f"Detected language: {result.get('language', code)}")
             logger.info("Transcription completed with word-level timestamps")
             # Generate ASS subtitle content
             ass_content = generate_ass_subtitle(result, max_chars)
@@ -84,18 +90,18 @@ def process_transcription(media_url, output_type, max_chars=56, language=None,):
             output_content = ass_content
 
             # Write the ASS content to a file
-            output_filename = os.path.join(STORAGE_PATH, f"{uuid.uuid4()}.{output_type}")
+            output_filename = os.path.join(STORAGE_PATH, f"{uuid.uuid4()}.{output}")
             with open(output_filename, 'w') as f:
                f.write(output_content) 
-            output = output_filename
-            logger.info(f"Generated {output_type.upper()} output: {output}")
+            result_value = output_filename
+            logger.info(f"Generated {output.upper()} output: {result_value}")
         else:
-            raise ValueError("Invalid output type. Must be 'transcript', 'srt', or 'vtt'.")
+            raise ValueError("Invalid output. Must be 'transcript', 'srt', 'vtt', or 'ass'.")
 
         os.remove(input_filename)
         logger.info(f"Removed local file: {input_filename}")
-        logger.info(f"Transcription successful, output type: {output_type}")
-        return output
+        logger.info(f"Transcription successful, output: {output}")
+        return result_value
     except Exception as e:
         logger.error(f"Transcription failed: {str(e)}")
         raise
