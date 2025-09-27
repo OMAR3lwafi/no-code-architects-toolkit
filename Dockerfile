@@ -186,16 +186,26 @@ RUN useradd -m appuser
 # Give appuser ownership of the /app directory (including whisper_cache)
 RUN chown appuser:appuser /app 
 
-# Important: Switch to the appuser before downloading the model
+# Important: Switch to the appuser
 USER appuser
 
-RUN python -c "import os; print(os.environ.get('WHISPER_CACHE_DIR')); import whisper; whisper.load_model('large')"
+# Defer Whisper model download to runtime to avoid high memory usage during build
+# The application will load the model on demand via services.whisper_utils
 
 # Install Playwright Chromium browser as appuser
 RUN playwright install chromium
 
+# Switch back to root to copy files and set permissions
+USER root
+
 # Copy the rest of the application code
 COPY . .
+
+# Give appuser ownership of all copied files
+RUN chown -R appuser:appuser /app
+
+# Switch back to appuser
+USER appuser
 
 # Expose the port the app runs on
 EXPOSE 8080
