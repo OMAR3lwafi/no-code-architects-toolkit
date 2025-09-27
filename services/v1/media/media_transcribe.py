@@ -22,6 +22,7 @@ import srt
 from datetime import timedelta
 from whisper.utils import WriteSRT, WriteVTT
 from services.file_management import download_file
+from services.whisper_utils import get_whisper_model, normalize_language
 import logging
 from config import LOCAL_STORAGE_PATH
 
@@ -29,18 +30,17 @@ from config import LOCAL_STORAGE_PATH
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
-def process_transcribe_media(media_url, task, include_text, include_srt, include_segments, word_timestamps, response_type, language, job_id, words_per_line=None):
+def process_transcribe_media(media_url, task, include_text, include_srt, include_segments, word_timestamps, response_type, language, job_id, words_per_line=None, model=None):
     """Transcribe or translate media and return the transcript/translation, SRT or VTT file path."""
     logger.info(f"Starting {task} for media URL: {media_url}")
     input_filename = download_file(media_url, os.path.join(LOCAL_STORAGE_PATH, f"{job_id}_input"))
     logger.info(f"Downloaded media to local file: {input_filename}")
 
     try:
-        # Load a larger model for better translation quality
-        #model_size = "large" if task == "translate" else "base"
-        model_size = "base"
-        model = whisper.load_model(model_size)
-        logger.info(f"Loaded Whisper {model_size} model")
+        # Create/receive model via factory (DI) and enforce Arabic language
+        code = normalize_language(language)
+        model = model or get_whisper_model(language=code, size="large")
+        logger.info(f"Loaded Whisper model (size=large), language set to '{code}'")
 
         # Configure transcription/translation options
         options = {
@@ -49,9 +49,8 @@ def process_transcribe_media(media_url, task, include_text, include_srt, include
             "verbose": False
         }
 
-        # Add language specification if provided
-        if language:
-            options["language"] = language
+        # Always use Arabic (normalized)
+        options["language"] = code
 
         result = model.transcribe(input_filename, **options)
         

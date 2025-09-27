@@ -50,10 +50,6 @@ logger = logging.getLogger(__name__)
         "id": {"type": "string"}
     },
     "required": ["video_url"],
-    "oneOf": [
-        {"required": ["srt"]},
-        {"required": ["ass"]}
-    ],
     "additionalProperties": False
 })
 @queue_task_wrapper(bypass_queue=False)
@@ -68,12 +64,16 @@ def caption_video(job_id, data):
     logger.info(f"Job {job_id}: Received captioning request for {video_url}")
     logger.info(f"Job {job_id}: Options received: {options}")
 
+    # Determine caption type and content; allow missing captions (fallback handled in service)
     if caption_ass is not None:
         captions = caption_ass
         caption_type = "ass"
-    else:
+    elif caption_srt is not None:
         captions = caption_srt
         caption_type = "srt"
+    else:
+        captions = None
+        caption_type = "ass"  # default to ASS when generating automatically
 
     try:
         output_filename = process_captioning(video_url, captions, caption_type, options, job_id)

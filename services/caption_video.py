@@ -4,6 +4,7 @@ import logging
 import requests
 import subprocess
 from services.file_management import download_file
+from services.ass_toolkit import generate_ass_captions_v1
 
 STORAGE_PATH = "/tmp/"
 logging.basicConfig(level=logging.INFO)
@@ -87,7 +88,7 @@ def generate_style_line(options):
 def process_captioning(video_url, captions, caption_type, options, job_id):
     try:
         video_path = download_file(video_url, STORAGE_PATH)
-        subtitle_extension = '.' + caption_type
+        subtitle_extension = '.' + caption_type if caption_type else '.ass'
         srt_path = os.path.join(STORAGE_PATH, f"{job_id}{subtitle_extension}")
 
         if isinstance(options, list):  # convert array to collection
@@ -106,7 +107,46 @@ def process_captioning(video_url, captions, caption_type, options, job_id):
                 "[Events]\nFormat: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\n"
             )
 
-        # ... (باقي الكود كما هو لكتابة ملف الترجمة)
+        # If no captions are provided, fallback to auto-generating ASS via v1 service
+        if captions is None:
+            logger.info(f"Job {job_id}: No captions provided; generating ASS via v1 service fallback.")
+            ass_result = generate_ass_captions_v1(
+                video_url,
+                captions=None,
+                settings={},
+                replace=[],
+                exclude_time_ranges=[],
+                job_id=job_id,
+                language='auto'
+            )
+            if isinstance(ass_result, dict) and 'error' in ass_result:
+                raise Exception(ass_result['error'])
+            # Use generated ASS path directly
+            srt_path = ass_result
+            subtitle_extension = '.ass'
+        else:
+            # Captions provided: write to local file (support URL or inline content)
+            if caption_type == 'ass':
+                if isinstance(captions, str) and captions.startswith('http'):
+                    logger.info(f"Job {job_id}: Downloading ASS captions from URL")
+                    resp = requests.get(captions)
+                    resp.raise_for_status()
+                    subtitle_content = caption_style + resp.text
+                else:
+                    subtitle_content = caption_style + captions
+                with open(srt_path, 'w', encoding='utf-8') as f:
+                    f.write(subtitle_content)
+            else:
+                # SRT/VTT
+                if isinstance(captions, str) and captions.startswith('http'):
+                    logger.info(f"Job {job_id}: Downloading {caption_type.upper()} captions from URL")
+                    resp = requests.get(captions)
+                    resp.raise_for_status()
+                    with open(srt_path, 'wb') as f:
+                        f.write(resp.content)
+                else:
+                    with open(srt_path, 'w', encoding='utf-8') as f:
+                        f.write(captions)
 
         output_path = os.path.join(STORAGE_PATH, f"{job_id}_captioned.mp4")
 
@@ -144,8 +184,19 @@ def process_captioning(video_url, captions, caption_type, options, job_id):
             subtitle_filter = f"subtitles={srt_path}:force_style='" + \
                 ','.join(f"{k}={v}" for k, v in style_options.items() if v is not None) + "'"
 
-        # ffmpeg invocation stays the same...
-        # ...
+        # Run FFmpeg to burn subtitles into the video
+        try:
+            logger.info(f"Job {job_id}: Running FFmpeg with filter: {subtitle_filter}")
+            ffmpeg.input(video_path).output(
+                output_path,
+                vf=subtitle_filter,
+                acodec='copy'
+            ).run(overwrite_output=True)
+            logger.info(f"Job {job_id}: FFmpeg processing completed, output file at {output_path}")
+        except ffmpeg.Error as e:
+            error_message = e.stderr.decode('utf8') if getattr(e, 'stderr', None) else str(e)
+            logger.error(f"Job {job_id}: FFmpeg error: {error_message}")
+            raise
 
         return output_path
     except Exception as e:
