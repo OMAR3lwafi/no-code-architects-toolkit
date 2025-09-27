@@ -1,5 +1,6 @@
 # Utility helpers for Whisper model creation and language validation
 import whisper
+from typing import Optional
 
 try:
     import torch
@@ -8,14 +9,20 @@ except Exception:  # pragma: no cover
 
 from whisper.tokenizer import LANGUAGES, TO_LANGUAGE_CODE
 
-SUPPORTED_LANGUAGE_CODES = set(TO_LANGUAGE_CODE.values()) | set(TO_LANGUAGE_CODE.keys()) | set(LANGUAGES.keys()) | set(LANGUAGES.values())
+# Use set.union for broad Python version compatibility (avoid the '|' operator)
+SUPPORTED_LANGUAGE_CODES = set().union(
+    set(TO_LANGUAGE_CODE.values()),
+    set(TO_LANGUAGE_CODE.keys()),
+    set(LANGUAGES.keys()),
+    set(LANGUAGES.values())
+)
 
 
 def get_default_language() -> str:
     return "ar"
 
 
-def normalize_language(lang: str | None) -> str:
+def normalize_language(lang: Optional[str]) -> str:
     """Return a normalized 2-letter language code if possible, defaulting to 'ar'.
     Accepts both names like 'Arabic' and codes like 'ar'. Raises ValueError if unsupported.
     """
@@ -32,7 +39,7 @@ def normalize_language(lang: str | None) -> str:
     return code
 
 
-def validate_language(lang: str | None) -> str:
+def validate_language(lang: Optional[str]) -> str:
     """Alias to normalize_language for external callers."""
     return normalize_language(lang)
 
@@ -44,7 +51,7 @@ def detect_device_has_gpu() -> bool:
         return False
 
 
-def get_whisper_model(language: str | None = None, size: str | None = "large"):
+def get_whisper_model(language: Optional[str] = None, size: Optional[str] = "large"):
     """Factory Method for creating a Whisper model.
     - Validates and normalizes language (defaults to Arabic 'ar').
     - Picks model size. If size is None, selects 'large' when GPU is available else 'medium'.
