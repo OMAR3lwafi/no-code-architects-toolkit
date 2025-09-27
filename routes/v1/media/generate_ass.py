@@ -119,8 +119,8 @@ def generate_ass_v1(job_id, data):
             exclude_time_ranges=exclude_time_ranges,
             job_id=job_id,
             language=language,
-            PlayResX=canvas_width,
-            PlayResY=canvas_height
+            play_res_x=canvas_width,
+            play_res_y=canvas_height
         )
         if isinstance(output, dict) and 'error' in output:
             if 'available_fonts' in output:

@@ -20,7 +20,6 @@ import os
 import ffmpeg
 import logging
 import subprocess
-import whisper
 from datetime import timedelta
 import srt
 import re
@@ -29,6 +28,7 @@ from services.cloud_storage import upload_file  # Ensure this import is present
 import requests  # Ensure requests is imported for webhook handling
 from urllib.parse import urlparse
 from config import LOCAL_STORAGE_PATH
+from services.whisper_utils import get_whisper_model, normalize_language
 
 # Initialize logger
 logger = logging.getLogger(__name__)
@@ -62,15 +62,18 @@ def rgb_to_ass_color(rgb_color):
             return f"&H00{b:02X}{g:02X}{r:02X}"
     return "&H00FFFFFF"
 
-def generate_transcription(video_path, language='auto'):
+def generate_transcription(video_path, language='ar', model=None):
     try:
-        model = whisper.load_model("base")
+        # Force Arabic as default and when language is 'auto'
+        if not language or language == 'auto':
+            language = 'ar'
+        code = normalize_language(language)
+        model = model or get_whisper_model(language=code, size="large")
         transcription_options = {
             'word_timestamps': True,
             'verbose': True,
+            'language': code
         }
-        if language != 'auto':
-            transcription_options['language'] = language
         result = model.transcribe(video_path, **transcription_options)
         logger.info(f"Transcription generated successfully for video: {video_path}")
         return result
@@ -737,11 +740,11 @@ def normalize_exclude_time_ranges(exclude_time_ranges):
         norm.append({"start": start, "end": end})
     return norm
 
-def generate_ass_captions_v1(video_url, captions, settings, replace, exclude_time_ranges, job_id, language='auto', PlayResX=None, PlayResY=None):
+def generate_ass_captions_v1(video_url, captions, settings, replace, exclude_time_ranges, job_id, language='auto', play_res_x=None, play_res_y=None, model=None):
     """
     Captioning process with transcription fallback and multiple styles.
     Integrates with the updated logic for positioning and alignment.
-    If PlayResX and PlayResY are provided, use them for ASS generation; otherwise, get from video.
+    If play_res_x and play_res_y are provided, use them for ASS generation; otherwise, get from video.
     """
     try:
         # Normalize exclude_time_ranges to ensure start/end are floats
@@ -806,9 +809,9 @@ def generate_ass_captions_v1(video_url, captions, settings, replace, exclude_tim
             return {"error": str(e)}
 
         # Get video resolution, unless provided
-        if PlayResX is not None and PlayResY is not None:
-            video_resolution = (PlayResX, PlayResY)
-            logger.info(f"Job {job_id}: Using provided PlayResX/PlayResY = {PlayResX}x{PlayResY}")
+        if play_res_x is not None and play_res_y is not None:
+            video_resolution = (play_res_x, play_res_y)
+            logger.info(f"Job {job_id}: Using provided play_res_x/play_res_y = {play_res_x}x{play_res_y}")
         else:
             video_resolution = get_video_resolution(video_path)
             logger.info(f"Job {job_id}: Video resolution detected = {video_resolution[0]}x{video_resolution[1]}")
@@ -840,7 +843,7 @@ def generate_ass_captions_v1(video_url, captions, settings, replace, exclude_tim
         else:
             # No captions provided, generate transcription
             logger.info(f"Job {job_id}: No captions provided, generating transcription.")
-            transcription_result = generate_transcription(video_path, language=language)
+            transcription_result = generate_transcription(video_path, language=language, model=model)
             # Generate ASS based on chosen style
             subtitle_content = process_subtitle_events(transcription_result, style_type, style_options, replace_dict, video_resolution)
             subtitle_type = 'ass'
